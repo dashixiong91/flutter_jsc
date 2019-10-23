@@ -1,0 +1,23 @@
+name: flutter_jsc
+description: A Flutter ffi project,provide JavaScriptCore feature in Flutter
+version: 0.0.1
+author: qianxinfeng <qianxinfeng@meituan.com>
+homepage: https://github.com/xinfeng-tech/flutter_jsc
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+  flutter: ">=1.10.14 <2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^4.1.1
+
+flutter:
+  plugin:
+    androidPackage: com.sankuai.flutter_jsc
+    pluginClass: FlutterJscPlugin

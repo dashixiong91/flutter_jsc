@@ -1,0 +1,29 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "build cpp test",
+      "command": "/usr/bin/clang++",
+      "args": [
+        "-g",
+        "${workspaceFolder}/cpp/test/flutter-jsc_test.cc",
+        "${workspaceFolder}/cpp/src/*.cc",
+        "-framework",
+        "JavaScriptCore",
+        "-I",
+        "${workspaceFolder}/cpp/include",
+        "-o",
+        "${workspaceFolder}/build/${workspaceFolderBasename}.out",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher":"$gcc",
+    },
+  ],
+  "version": "2.0.0"
+}

@@ -1,0 +1,93 @@
+apply plugin: FlutterPlatformPlugin
+
+class FlutterPlatformPlugin implements Plugin<Project> {
+    // The platforms that can be passed to the `--Ptarget-platform` flag.
+    private static final String PLATFORM_ARM32 = "android-arm";
+    private static final String PLATFORM_ARM64 = "android-arm64";
+    private static final String PLATFORM_X86 = "android-x86";
+    private static final String PLATFORM_X86_64 = "android-x64";
+
+    // The ABI architectures.
+    private static final String ARCH_ARM32 = "armeabi-v7a";
+    private static final String ARCH_ARM64 = "arm64-v8a";
+    private static final String ARCH_X86 = "x86";
+    private static final String ARCH_X86_64 = "x86_64";
+
+    // Maps platforms to ABI architectures.
+    private static final Map PLATFORM_ARCH_MAP = [
+            (PLATFORM_ARM32) : ARCH_ARM32,
+            (PLATFORM_ARM64) : ARCH_ARM64,
+            (PLATFORM_X86)   : ARCH_X86,
+            (PLATFORM_X86_64): ARCH_X86_64,
+    ]
+
+    // When split is enabled, multiple APKs are generated per each ABI.
+    private static final Set<String> DEFAULT_PLATFORMS = [
+            PLATFORM_ARM32,
+            PLATFORM_ARM64,
+    ]
+    @Override
+    void apply(Project project) {
+        Set<String> buildAbiFilters = getABIs(project)
+        Boolean isSplitPerAbi = isSplitPerAbi(project)
+
+        project.android {
+            buildTypes {
+                release {
+                    initWith buildTypes.release
+                    if (!isSplitPerAbi) {
+                        ndk {
+                            def releaseAbiFilter=buildAbiFilters.clone()
+                            setAbiFilters(releaseAbiFilter)
+                        }
+                    }
+                }
+                profile {
+                    initWith buildTypes.release
+                    if (!isSplitPerAbi) {
+                        ndk {
+                            def profileAbiFilter=buildAbiFilters.clone()
+                            setAbiFilters(profileAbiFilter)
+                        }
+                    }
+                }
+                debug {
+                    initWith buildTypes.debug
+                    if (!isSplitPerAbi) {
+                        ndk {
+                            def debugAbiFilter=buildAbiFilters.clone()
+                            debugAbiFilter.addAll([ARCH_X86,ARCH_X86_64])
+                            setAbiFilters(debugAbiFilter)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static Set<String> getABIs(Project project) {
+        Set<String> targetPlatforms = getTargetPlatforms(project)
+        return targetPlatforms.collect {
+            return PLATFORM_ARCH_MAP[it]
+        }
+    }
+
+    private static Boolean isSplitPerAbi(Project project) {
+        if (project.hasProperty('split-per-abi')) {
+            return project.property('split-per-abi').toBoolean()
+        }
+        return false;
+    }
+
+    private static Set<String> getTargetPlatforms(Project project) {
+        if (!project.hasProperty('target-platform')) {
+            return DEFAULT_PLATFORMS
+        }
+        return project.property('target-platform').split(',').collect {
+            if (!PLATFORM_ARCH_MAP[it]) {
+                throw new GradleException("Invalid platform: $it.")
+            }
+            return it
+        }.toSet()
+    }
+}

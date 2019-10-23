@@ -1,0 +1,43 @@
+group 'com.sankuai.flutter_jsc'
+version '0.0.1'
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+    }
+}
+
+if(rootProject == project){
+    rootProject.buildDir = '../build/android'
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply from: './gradle/flutter-platform.gradle'
+apply from: './gradle/ffi.gradle'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+}
+dependencies{
+    compileOnly fileTree(dir:'libs',includes: ['*.jar'])
+}
